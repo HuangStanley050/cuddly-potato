@@ -40,9 +40,3 @@ functions:
     handler: handler.joke
     events:
       - schedule: rate(1 minute)
-  # hello:
-  #   handler: handler.hello
-  #   events:
-  #     - http:
-  #         path: hello
-  #         method: get

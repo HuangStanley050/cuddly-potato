@@ -14,6 +14,7 @@
 // );
 import axios from "axios";
 import moment from "moment";
+import dynamoDb from "./libs/dynamoDB-lib";
 
 export const joke = async (event, context) => {
   let api = `https://api.chucknorris.io/jokes/random`;
@@ -21,6 +22,19 @@ export const joke = async (event, context) => {
   let time = Date.now();
   let creationDate = moment(time).format("MM/DD/YYYY");
   let joke = jokeData.data.value;
-  console.log(joke);
-  console.log(creationDate);
+  const params = {
+    TableName: `chuckNorrisJokes`,
+    Item: {
+      creationDate,
+      joke,
+    },
+  };
+  try {
+    await dynamoDb.put(params);
+    console.log("all okay");
+  } catch (err) {
+    console.log(err);
+  }
+  // console.log(joke);
+  // console.log(creationDate);
 };
