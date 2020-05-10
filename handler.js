@@ -20,7 +20,7 @@ export const joke = async (event, context) => {
   let api = `https://api.chucknorris.io/jokes/random`;
   let jokeData = await axios.get(api);
   let time = Date.now();
-  let creationDate = moment(time).format("MM/DD/YYYY");
+  let creationDate = moment(time).format("MM/DD/YYYY HH:mm");
   let joke = jokeData.data.value;
   const params = {
     TableName: `chuckNorrisJokes`,
