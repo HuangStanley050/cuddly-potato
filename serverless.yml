@@ -10,6 +10,7 @@ plugins:
   - serverless-bundle # Package our functions with Webpack
   - serverless-offline
   - serverless-dotenv-plugin # Load .env as environment variables
+  - serverless-iam-roles-per-function
 
 provider:
   name: aws
@@ -23,20 +24,31 @@ provider:
   #
   #environment:
   #  SAMPLE_ENV_VAR: ${env:SAMPLE_ENV_VAR}
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:DescribeTable
-        - dynamodb:Query
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-      Resource: "arn:aws:dynamodb:ap-southeast-2:019137212646:table/chuckNorrisJokes"
+  # iamRoleStatements:
+  #   - Effect: Allow
+  #     Action:
+  #       - dynamodb:DescribeTable
+  #       - dynamodb:Query
+  #       - dynamodb:Scan
+  #       - dynamodb:GetItem
+  #       - dynamodb:PutItem
+  #       - dynamodb:UpdateItem
+  #       - dynamodb:DeleteItem
+  #     Resource: "arn:aws:dynamodb:ap-southeast-2:019137212646:table/chuckNorrisJokes"
 
 functions:
   joke:
     handler: handler.joke
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          #- dynamodb:DescribeTable
+          #- dynamodb:Query
+          #- dynamodb:Scan
+          #- dynamodb:GetItem
+          - dynamodb:PutItem
+          #- dynamodb:UpdateItem
+          #- dynamodb:DeleteItem
+        Resource: "arn:aws:dynamodb:ap-southeast-2:019137212646:table/chuckNorrisJokes"
     events:
       - schedule: rate(1 minute)
