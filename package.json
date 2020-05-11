@@ -22,7 +22,9 @@
   "dependencies": {
     "aws-sdk": "^2.673.0",
     "axios": "^0.19.2",
+    "dynalite": "^3.1.6",
     "moment": "^2.25.3",
-    "serverless-plugin-offline-dynamodb-stream": "^1.0.19"
+    "serverless-plugin-offline-dynamodb-stream": "^1.0.19",
+    "uuid": "^8.0.0"
   }
 }

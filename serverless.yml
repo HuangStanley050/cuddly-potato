@@ -8,10 +8,10 @@ package:
 plugins:
   - serverless-offline-scheduler
   - serverless-bundle # Package our functions with Webpack
+  - serverless-plugin-offline-dynamodb-stream
   - serverless-offline
   - serverless-dotenv-plugin # Load .env as environment variables
   - serverless-iam-roles-per-function
-  - serverless-plugin-offline-dynamodb-stream
 
 provider:
   name: aws
@@ -40,26 +40,49 @@ provider:
   #       - dynamodb:UpdateItem
   #       - dynamodb:DeleteItem
   #     Resource: "arn:aws:dynamodb:ap-southeast-2:019137212646:table/chuckNorrisJokes"
-custom:
-  serverless-offline-dynamodb-streams:
-    apiVersion: "2013-12-02"
-    endpoint: http://0.0.0.0:8000
-    region: ap-south-east-2
-    accessKeyId: ${env:AWS_ACC_KEY_ID}
-    secretAccessKey: ${env:AWS_SECRET}
-    skipCacheInvalidation: false
-    readInterval: 500
+# custom:
+#   # dynamodbStream:
+#   #   host: http://localhost
+#   #   port: 3000
+#   #   pollForever: true
+#   #   streams:
+#   #     - table: chuckNorrisJokes
+#   #       functions:
+#   #         - mainWorker
+#   serverless-offline-dynamodb-streams:
+#     apiVersion: "2013-12-02"
+#     endpoint: http://0.0.0.0:3000
+#     region: ap-south-east-2
+#     accessKeyId: ${env:AWS_ACC_KEY_ID}
+#     secretAccessKey: ${env:AWS_SECRET}
+#     skipCacheInvalidation: false
+#     readInterval: 500
 
 functions:
-  mainWorker:
-    handler: handler.mainWorker
-    events:
-      - stream:
-          enabled: true
-          type: dynamodb
-          arn: arn:aws:dynamodb:ap-southeast-2:019137212646:table/chuckNorrisJokes/stream/2020-05-11T01:07:58.471
-          batchSize: 10
-          startingPosition: TRIM_HORIZON
+  # mainWorker:
+  #   handler: handler.mainWorker
+  #   iamRoleStatements:
+  #     - Effect: Allow
+  #       Action:
+  #         - dynamodb:DescribeStream
+  #         - dynamodb:GetRecords
+  #         - dynamodb:GetShardIterator
+  #         - dynamodb:ListStreams
+  #         - dynamodb:Query
+  #         - dynamodb:Scan
+  #         - dynamodb:GetItem
+  #         - dynamodb:PutItem
+  #         - dynamodb:UpdateItem
+  #         - dynamodb:DeleteItem
+  #       Resource: "arn:aws:dynamodb:ap-southeast-2:019137212646:table/chuckNorrisJokes/stream/2020-05-11T01:07:58.471"
+  #   events:
+  #     # - stream: arn:aws:dynamodb:ap-southeast-2:019137212646:table/chuckNorrisJokes/stream/2020-05-11T01:07:58.471
+  #     - stream:
+  #         enabled: true
+  #         type: dynamodb
+  #         arn: arn:aws:dynamodb:ap-southeast-2:019137212646:table/chuckNorrisJokes/stream/2020-05-11T01:07:58.471
+  #         batchSize: 1
+  #         startingPosition: LATEST
 
   joke:
     handler: handler.joke
@@ -71,8 +94,13 @@ functions:
           #- dynamodb:Scan
           #- dynamodb:GetItem
           - dynamodb:PutItem
+          - polly:*
+          - "s3:*"
           #- dynamodb:UpdateItem
           #- dynamodb:DeleteItem
-        Resource: "arn:aws:dynamodb:ap-southeast-2:019137212646:table/chuckNorrisJokes"
+        Resource:
+          - "arn:aws:dynamodb:ap-southeast-2:019137212646:table/chuckNorrisJokes"
+          - "arn:aws:s3:::chuck-norris-audio/*"
+
     events:
       - schedule: rate(1 minute)

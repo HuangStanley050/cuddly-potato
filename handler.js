@@ -15,16 +15,23 @@
 import axios from "axios";
 import moment from "moment";
 import dynamoDb from "./libs/dynamoDB-lib";
+import AWS from "aws-sdk";
+import { v4 as uuidv4 } from "uuid";
+const polly = new AWS.Polly();
+const s3 = new AWS.S3();
 
-export const mainWorker = async (event, context) => {
-  console.log("triggered");
-};
 export const joke = async (event, context) => {
   let api = `https://api.chucknorris.io/jokes/random`;
   let jokeData = await axios.get(api);
   let time = Date.now();
   let creationDate = moment(time).format("MM/DD/YYYY HH:mm");
+
   let joke = jokeData.data.value;
+  const pollyParams = {
+    OutputFormat: "mp3",
+    Text: joke,
+    VoiceId: "Salli",
+  };
   const params = {
     TableName: `chuckNorrisJokes`,
     Item: {
@@ -34,6 +41,14 @@ export const joke = async (event, context) => {
   };
   try {
     await dynamoDb.put(params);
+    let result = await polly.synthesizeSpeech(pollyParams).promise();
+    let s3Params = {
+      Bucket: "chuck-norris-audio",
+      Key: uuidv4() + ".mp3",
+      Body: result.AudioStream,
+    };
+    //console.log(result);
+    await s3.putObject(s3Params).promise();
     console.log("all okay");
   } catch (err) {
     console.log(err);
