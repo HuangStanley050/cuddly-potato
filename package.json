@@ -22,6 +22,7 @@
   "dependencies": {
     "aws-sdk": "^2.673.0",
     "axios": "^0.19.2",
-    "moment": "^2.25.3"
+    "moment": "^2.25.3",
+    "serverless-plugin-offline-dynamodb-stream": "^1.0.19"
   }
 }

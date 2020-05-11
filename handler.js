@@ -16,6 +16,9 @@ import axios from "axios";
 import moment from "moment";
 import dynamoDb from "./libs/dynamoDB-lib";
 
+export const mainWorker = async (event, context) => {
+  console.log("triggered");
+};
 export const joke = async (event, context) => {
   let api = `https://api.chucknorris.io/jokes/random`;
   let jokeData = await axios.get(api);
