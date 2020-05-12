@@ -16,6 +16,7 @@ import axios from "axios";
 import moment from "moment";
 import dynamoDb from "./libs/dynamoDB-lib";
 import AWS from "aws-sdk";
+import nodeMailer from "nodemailer";
 import { v4 as uuidv4 } from "uuid";
 const polly = new AWS.Polly();
 const s3 = new AWS.S3();
@@ -39,16 +40,38 @@ export const joke = async (event, context) => {
       joke,
     },
   };
+
   try {
     await dynamoDb.put(params);
     let result = await polly.synthesizeSpeech(pollyParams).promise();
+    let Key = uuidv4() + ".mp3";
+
     let s3Params = {
       Bucket: "chuck-norris-audio",
-      Key: uuidv4() + ".mp3",
+      Key,
       Body: result.AudioStream,
     };
     //console.log(result);
     await s3.putObject(s3Params).promise();
+    let url = await s3.getSignedUrlPromise("getObject", {
+      Bucket: `chuck-norris-audio`,
+      Key,
+    });
+
+    const transporter = nodeMailer.createTransport({
+      service: "yahoo",
+      auth: {
+        user: "infamous_godhand@yahoo.com",
+        pass: process.env.EMAIL_PASSWD,
+      },
+    });
+    const mailOptions = {
+      from: "infamous_godhand@yahoo.com",
+      to: "infamous_godhand@yahoo.com",
+      subject: `chuck norris jokes`,
+      text: `${url}`,
+    };
+    await transporter.sendMail(mailOptions);
     console.log("all okay");
   } catch (err) {
     console.log(err);

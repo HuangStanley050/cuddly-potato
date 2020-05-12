@@ -24,6 +24,7 @@
     "axios": "^0.19.2",
     "dynalite": "^3.1.6",
     "moment": "^2.25.3",
+    "nodemailer": "^6.4.6",
     "serverless-plugin-offline-dynamodb-stream": "^1.0.19",
     "uuid": "^8.0.0"
   }
